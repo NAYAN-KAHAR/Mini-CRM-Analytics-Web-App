@@ -42,11 +42,9 @@ venv\Scripts\activate     # Windows
 
 # Install backend dependencies:
 pip install -r backend/requirements.txt
+```
 
 
-
-
----
 ### 2. Additional Notes
 ## Communication
 
@@ -83,6 +81,9 @@ pip install -r backend/requirements.txt
 ## Summary
 
 This project provides a clean separation of concerns:
+
+
+
 
 - Backend focuses on business logic, data storage, and API.
 - Frontend focuses on user interface, routing, and data visualization.
