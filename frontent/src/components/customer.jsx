@@ -17,6 +17,9 @@ const Customer = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
 
+  const [limit, setLimit] = useState(8);
+  const [page, setPage] = useState(1);
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,10 +77,11 @@ const Customer = () => {
 
   const fetchAllCustomers = async () => {
     try{
-      const res = await axios.get(`http://localhost:8000/api/get/contacts`);
+      const res = await axios.get(`http://localhost:8000/api/get/contacts?limt=${limit}&page=${page}`);
       // console.log(res.data);
-      setCustomers(res.data);
-      setAllCustomers(res.data)
+      setCustomers(res.data.data);
+      setAllCustomers(res.data.data);
+      setTotalCustomers(res.data.total)
     }catch(err){
       console.log(err)
     }
@@ -85,7 +89,16 @@ const Customer = () => {
 
 useEffect(() => {
     fetchAllCustomers();
-  },[]);
+  },[page]);
+
+
+const totalPages = Math.ceil(totalCustomers / limit);
+
+// pagination based on total pages
+const prevPagination = Array.from({ length: 2 }, (_, i) => page - 1 - i).filter(p => p > 0).reverse();
+const nextPagination = Array.from({ length: 3 }, (_, i) => page + i).filter(p => p <= totalPages);
+const mergeArray = [...prevPagination, ...nextPagination];
+
 
 
 const handleSearch = (e) => {
@@ -275,7 +288,22 @@ const exportCsv = async () => {
       </div>  
 
 
+   <div className="mb-6 flex gap-4 items-center">
+          {page > 1 && (
+            <button onClick={() => setPage(page - 1)}
+              className="px-3 py-2 rounded-lg bg-violet-800 text-white cursor-pointer\ transition hover:bg-violet-700"> Prev</button> )}
 
+          {mergeArray.map((curValue, i) => (
+            <button onClick={() => setPage(curValue)} key={i}
+              className={`px-3 py-2 rounded-lg text-white cursor-pointer transition
+              ${curValue === page ? "bg-blue-600" : " bg-violet-800"}`}>
+              {curValue}</button> ))}
+
+          {page < totalPages && (
+            <button onClick={() => setPage(page + 1)}
+              className="px-3 py-2 rounded-lg bg-violet-800 text-white cursor-pointer
+              transition hover:bg-violet-700" > Next</button>)}
+     </div>
 
     </div>
     

@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse,Response
 
 from io import StringIO
 import csv
-
+from sqlalchemy import func
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
@@ -52,19 +52,33 @@ async def contact_post(customer:CustomerSchema, db: AsyncSession = Depends(get_d
 
 #  get all customers 
 @router.get('/api/get/contacts')
-async def contact_post(db: AsyncSession = Depends(get_db)):
+async def contact_post(db: AsyncSession = Depends(get_db),limit: int = 8, page: int = 1):
     try:
-        result = await db.execute(select(Customer))
-        exist_customer = result.scalars().all()
 
-        return exist_customer
+        total_result = await db.execute(select(func.count(Customer.id)))
+        total_count = total_result.scalar_one()
 
+        offset = (page - 1) * limit
+        result = await db.execute(select(Customer).offset(offset).limit(limit))
+        customers = result.scalars().all()
+
+        if not customers and page != 1:
+            raise HTTPException(status_code=404, detail='Customer not found')
+        
+        return {
+            "data": customers,
+            "total": total_count,
+            "page": page,
+            "limit": limit
+        }
+    
     except SQLAlchemyError as e:
         print(e)
         raise HTTPException(status_code=500,detail='Internal Server Error')
     
 
 
+       
 
 
 # csv file hanle logic

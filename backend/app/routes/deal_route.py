@@ -6,7 +6,7 @@ from datetime import datetime
 
 from io import StringIO
 import csv
-
+from sqlalchemy import func
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
@@ -69,19 +69,30 @@ async def get_all_contacts(deals: DealsSchema, db: AsyncSession = Depends(get_db
 
 # get deal customer logic
 @router.get('/api/get/deals-contacts')
-async def get_all_contacts(db: AsyncSession = Depends(get_db)):
+async def get_all_contacts(db: AsyncSession = Depends(get_db), limit: int = 8, page: int = 1):
     try:
-        result = await db.execute(select(DealsCustomer))
-        exist_customer = result.scalars().all()
+        # Count total customers
+        total_result = await db.execute(select(func.count(DealsCustomer.id)))
+        total_count = total_result.scalar_one()
 
-        if not exist_customer:
+        offset = (page - 1) * limit
+        result = await db.execute(select(DealsCustomer).offset(offset).limit(limit))
+        customers = result.scalars().all()
+
+        if not customers and page != 1:
             raise HTTPException(status_code=404, detail='Customer not found')
 
-        return exist_customer
-    
-    except SQLAlchemyError as e:
-        print(e)
-        raise HTTPException(status_code=500,detail='Internal Server Error')
+        return {
+            "data": customers,
+            "total": total_count,
+            "page": page,
+            "limit": limit
+        }
+
+
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail='Internal Server Error')
+
     
 
 

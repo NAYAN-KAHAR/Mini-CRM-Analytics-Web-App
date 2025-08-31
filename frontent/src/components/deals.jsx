@@ -21,6 +21,9 @@ const Deals = () => {
   const [allCustomers, setAllCustomers] = useState([]);
 
   const [customersName, setCustomersName] = useState([]);
+  const [limit, setLimit] = useState(8);
+  const [page, setPage] = useState(1);
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
   const fetchAllCustomers = async () => {
     try{
@@ -34,10 +37,11 @@ const Deals = () => {
 
   const fetchAllDelasCustomers = async () => {
     try{
-      const res = await axios.get(`http://localhost:8000/api/get/deals-contacts`);
-      // console.log(res.data);
-      setCustomers(res.data);
-      setAllCustomers(res.data);
+      const res = await axios.get(`http://localhost:8000/api/get/deals-contacts?limt=${limit}&page=${page}`);
+      console.log(res.data);
+      setCustomers(res.data.data);
+      setAllCustomers(res.data.data);
+      setTotalCustomers(res.data.total);
 
     }catch(err){
       console.log(err)
@@ -46,7 +50,16 @@ const Deals = () => {
   useEffect(() => {
     fetchAllCustomers();
     fetchAllDelasCustomers();
-  },[]);
+  },[page]);
+
+const totalPages = Math.ceil(totalCustomers / limit);
+
+// pagination based on total pages
+const prevPagination = Array.from({ length: 2 }, (_, i) => page - 1 - i).filter(p => p > 0).reverse();
+const nextPagination = Array.from({ length: 3 }, (_, i) => page + i).filter(p => p <= totalPages);
+const mergeArray = [...prevPagination, ...nextPagination];
+
+
 
 //upload/deal-customers-csv"
   const handleSubmit = async (e) => {
@@ -160,7 +173,7 @@ const exportCsv = async () => {
 const handleDel = async (id) => {
   try{
       const res = await axios.delete(`http://localhost:8000/api/deals-delete/${id}`);
-      console.log(res.data);
+      // console.log(res.data);
       toast.success(res.data);
       fetchAllDelasCustomers();
   }catch(err){
@@ -276,8 +289,7 @@ const handleSearch = (e) => {
 </div>
 
 
- 
-      <div className="mt-10 w-full max-w-4xl">
+    <div className="mt-2 w-full max-w-4xl h-[400px] overflow-y-auto mb-10">
     
 
   
@@ -298,7 +310,7 @@ const handleSearch = (e) => {
               <tbody>
                 {customers.map((customer, index) => (
                   <tr key={index} className="border-t">
-                      <td className="px-4 py-2 border">{index + 1}</td>
+                      <td className="px-4 py-2 border">{customer.id}</td>
                     <td className="px-4 py-2 border">{customer.name}</td>
                     <td className="px-4 py-2 border">{customer.amount}</td>
                     <td className="px-4 py-2 border">{customer.stage}</td>
@@ -320,7 +332,26 @@ const handleSearch = (e) => {
         ) : (
           <p className="text-gray-500 mt-4 text-sm text-center">No customers added yet.</p>
         )}
+
       </div>
+
+        <div className="mb-6 flex gap-4 items-center">
+          {page > 1 && (
+            <button onClick={() => setPage(page - 1)}
+              className="px-3 py-2 rounded-lg bg-violet-800 text-white cursor-pointer\ transition hover:bg-violet-700"> Prev</button> )}
+
+          {mergeArray.map((curValue, i) => (
+            <button onClick={() => setPage(curValue)} key={i}
+              className={`px-3 py-2 rounded-lg text-white cursor-pointer transition
+              ${curValue === page ? "bg-blue-600" : " bg-violet-800"}`}>
+              {curValue}</button> ))}
+
+          {page < totalPages && (
+            <button onClick={() => setPage(page + 1)}
+              className="px-3 py-2 rounded-lg bg-violet-800 text-white cursor-pointer
+              transition hover:bg-violet-700" > Next</button>)}
+     </div>
+     
     </div>
     </>
   );

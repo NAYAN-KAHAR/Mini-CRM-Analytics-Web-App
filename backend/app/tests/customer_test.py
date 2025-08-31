@@ -62,9 +62,14 @@ async def test_create_duplicate_customer(async_client: AsyncClient):
 async def test_get_customers(async_client: AsyncClient):
     response = await async_client.get("/api/get/contacts")
     assert response.status_code == 200
-    customers = response.json()
-    assert isinstance(customers, list)
-    assert customers[0]["email"] == "alice@example.com"
+
+    customers_response = response.json()
+
+    assert isinstance(customers_response, dict)
+    assert "data" in customers_response
+    assert isinstance(customers_response["data"], list)
+
+ 
 
 
 
@@ -89,21 +94,21 @@ async def test_delete_customer(async_client: AsyncClient):
 
 
 @pytest.mark.anyio
-async def test_csv_upload_and_export(async_client: AsyncClient):
-    # Create CSV 
+async def test_upload_customers_csv(async_client: AsyncClient):
     csv_content = (
         "name,email,phone,company\n"
         "Bob,bob@example.com,1112223333,Bob Co.\n"
         "Charlie,charlie@example.com,2223334444,Charlie Co.\n"
     )
-
-    # Upload CSV
     files = {"file": ("customers.csv", csv_content, "text/csv")}
-    upload_response = await async_client.post("/api/upload/customers-csv", files=files)
-    assert upload_response.status_code == 200
-    assert "2 customers added" in upload_response.text
+    response = await async_client.post("/api/upload/customers-csv", files=files)
+    assert response.status_code == 200
+    assert "2 customers added" in response.text
 
-    # Export CSV
-    export_response = await async_client.get("/api/export/contacts")
-    assert export_response.status_code == 200
-    assert "text/csv" in export_response.headers["content-type"]
+@pytest.mark.anyio
+async def test_export_customers_csv(async_client: AsyncClient):
+    response = await async_client.get("/api/export/contacts")
+    assert response.status_code == 200
+    assert "text/csv" in response.headers["content-type"]
+    assert "name,email,phone,company".lower() in response.text.lower()
+
