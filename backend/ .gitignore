@@ -1,0 +1,33 @@
+# 🔒 Ignore Python virtual environments
+myenv/
+.myenv/
+/myenv
+./myenv
+
+
+# 🧹 Ignore Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 🔐 Ignore environment variable files
+.env
+
+# 📄 Ignore log files
+*.log
+
+# 🧠 Ignore SQLite and test database files
+*.db
+*.sqlite3
+
+# 🛠 Ignore IDE/editor-specific settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 📦 Ignore distribution/build folders (optional for packages)
+build/
+dist/
+*.egg-info/
+.eggs/
