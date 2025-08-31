@@ -1,0 +1,12 @@
+{
+  "name": "crm",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:react\" \"npm run dev:api\"",
+    "dev:react": "cd frontent && npm run dev",
+    "dev:api": "cd backend && uvicorn app.main:app --reload --port 8000"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
