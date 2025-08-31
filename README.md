@@ -24,12 +24,8 @@ CSV import/export functionality, and an analytics dashboard for insightful data 
 
 ```bash
 git clone https://github.com/NAYAN-KAHAR/Mini-CRM-Analytics-Web-App
-cd frontent
+cd Mini-CRM-Analytics-Web-App
 npm install
-
-#Running the app
-    npm run dev
-
 
 ## 2. Install dependencies
 
@@ -42,6 +38,13 @@ venv\Scripts\activate     # Windows
 
 # Install backend dependencies:
 pip install -r backend/requirements.txt
+
+
+#Running the app both together frontent and backend || Provide one-command run (npm run dev)
+inside  Mini-CRM-Analytics-Web-App
+  npm install
+  npm run dev
+  
 ```
 
 
